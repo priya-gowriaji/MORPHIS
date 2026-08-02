@@ -1,0 +1,75 @@
+import os
+import numpy as np
+import wave
+import time
+import pyttsx3
+from board import SCL, SDA
+import busio
+from adafruit_pca9685 import PCA9685
+from adafruit_motor import servo
+
+# PCA Setup
+i2c = busio.I2C(SCL, SDA)
+pca = PCA9685(i2c)
+pca.frequency = 50
+
+JL = servo.Servo(pca.channels[0])
+JR = servo.Servo(pca.channels[1])
+is_speaking = False
+
+def set_jaw(x):
+    JL.angle = 100 - x
+    JR.angle = 100 + x
+
+# Speech Initialization
+engine = pyttsx3.init()
+
+def speak_with_jaw(text):
+    global is_speaking
+    is_speaking = True
+    print("MORPHIS:", text)
+    engine.say(text)
+    
+    for _ in range(6):
+        set_jaw(0)
+        time.sleep(0.2)
+        set_jaw(5)
+        time.sleep(0.2)
+        
+    engine.runAndWait()
+    set_jaw(0)
+    pca.channels[0].duty_cycle = 0
+    pca.channels[1].duty_cycle = 0
+    is_speaking = False
+
+# Record audio snippet
+def record_audio():
+    os.system("arecord -D default -f S16_LE -r 16000 -d 1 test.wav")
+
+# Calculate volume magnitude
+def get_volume():
+    wf = wave.open("test.wav", "rb")
+    frames = wf.readframes(wf.getnframes())
+    audio = np.frombuffer(frames, dtype=np.int16)
+    return np.linalg.norm(audio)
+
+# MAIN LOOP
+if __name__ == "__main__":
+    print("System Ready... Speak")
+    triggered = False
+
+    while True:
+        record_audio()
+        vol = get_volume()
+        print("Volume:", vol)
+
+        if is_speaking:
+            continue
+
+        if vol > 120000 and not triggered:
+            print("Speech detected!")
+            triggered = True
+            speak_with_jaw("Hi, nice to meet you")
+            time.sleep(0.5)
+        elif vol < 60000:
+            triggered = False
