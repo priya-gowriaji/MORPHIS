@@ -1,0 +1,48 @@
+from board import SCL, SDA
+import busio
+from adafruit_pca9685 import PCA9685
+from adafruit_motor import servo
+import time
+
+# Setup I2C & PCA9685
+i2c = busio.I2C(SCL, SDA)
+pca = PCA9685(i2c)
+pca.frequency = 50
+
+# Servos Initialization
+# Jaw
+JL = servo.Servo(pca.channels[0])
+JR = servo.Servo(pca.channels[1])
+
+# Eyebrows
+LI = servo.Servo(pca.channels[2])  # Left Inner
+LO = servo.Servo(pca.channels[3])  # Left Outer
+RI = servo.Servo(pca.channels[4])  # Right Inner
+RO = servo.Servo(pca.channels[5])  # Right Outer
+
+# Jaw control function
+def set_jaw(x):
+    JL.angle = 100 - x
+    JR.angle = 100 + x
+
+# Eyebrow control function
+def set_eyebrow(y):
+    # LEFT side
+    LI.angle = 120 - y
+    LO.angle = 120 + y
+    # RIGHT side (mirrored)
+    RI.angle = 120 + y
+    RO.angle = 120 - y
+
+# Main Loop
+if __name__ == "__main__":
+    while True:
+        print("Open + eyebrows up")
+        set_jaw(30)      # small jaw open
+        set_eyebrow(60)  # eyebrows up
+        time.sleep(0.6)
+
+        print("Close + eyebrows normal")
+        set_jaw(0)       # closed
+        set_eyebrow(0)   # neutral
+        time.sleep(0.6)
