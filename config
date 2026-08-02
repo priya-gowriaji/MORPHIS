@@ -1,1 +1,32 @@
-
+{
+  "jaw_left": {
+    "channel": 0,
+    "base_angle": 100,
+    "direction": -1
+  },
+  "jaw_right": {
+    "channel": 1,
+    "base_angle": 100,
+    "direction": 1
+  },
+  "eyebrow_left_inner": {
+    "channel": 2,
+    "base_angle": 120,
+    "direction": -1
+  },
+  "eyebrow_left_outer": {
+    "channel": 3,
+    "base_angle": 120,
+    "direction": 1
+  },
+  "eyebrow_right_inner": {
+    "channel": 4,
+    "base_angle": 120,
+    "direction": 1
+  },
+  "eyebrow_right_outer": {
+    "channel": 5,
+    "base_angle": 120,
+    "direction": -1
+  }
+}
